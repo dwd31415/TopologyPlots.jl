@@ -1,9 +1,12 @@
 module TopologyPlots
 
-import PGFPlotsX
-import PGFPlotsX.@pgf
+#import PGFPlotsX: Axis, Table, Plot3
+#import PGFPlotsX.@pgf
+using PGFPlotsX
 
-function plot_cylinder(half_height, axis :: PGFPlotsX.Axis)
+export plot_cylinder
+
+function plot_cylinder(half_height, axis :: Axis)
     p1 = range(-half_height,half_height,length=2)'
     p2 = 0:0.1:2π+1e-1
     angles = @. 0.0 * p1 + 1.0 * p2
@@ -29,3 +32,4 @@ function plot_cylinder(half_height, axis :: PGFPlotsX.Axis)
 end
 
 end # module TopologyPlots
+
