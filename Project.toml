@@ -1,0 +1,4 @@
+name = "TopologyPlots"
+uuid = "cc720b86-f48c-4009-98b5-8137c7fd8e68"
+authors = ["Adrian Dawid <adriandwd@gmail.com>"]
+version = "0.1.0"
