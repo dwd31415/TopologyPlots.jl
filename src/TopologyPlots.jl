@@ -31,5 +31,34 @@ function plot_cylinder(half_height, axis :: Axis)
     push!(axis, zero_section)
 end
 
+function plot_circle_element(options :: PGFPlotsX.Options, angle_start, angle_end, z)
+    p2 = angle_start:1e-2:angle_end+1e-2
+    angles = @. 0.0 * z + 1.0 * p2
+    x = vec(@. cos(angles))
+    y = vec(@. sin(angles))
+    z = vec(@. [z]' + 0.0 * p2)
+    return @pgf Plot3(options, Table(x,y,z))
+end
+
+function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true)
+    option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => "black")
+    option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => "black")
+    option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
+
+    push!(axis, plot_circle_element(option_back, 0, π, half_height))
+    push!(axis, plot_circle_element(option_front,π,2π, half_height))
+    push!(axis, plot_circle_element(option_back, 0, π, -half_height))
+    push!(axis, plot_circle_element(option_front,π,2π, -half_height))
+
+    if vertical_frame
+        vertical_frame_left = @pgf Plot3(option_front, Table([-1,-1], [0,0], [half_height,-half_height]))
+        push!(axis, vertical_frame_left)
+        vertical_frame_left = @pgf Plot3(option_front, Table([1,1], [0,0], [half_height,-half_height]))
+        push!(axis, vertical_frame_left)
+    end
+
+    push!(axis, plot_circle_element(option_zerosection,0,2π, 0))
+end
+
 end # module TopologyPlots
 
