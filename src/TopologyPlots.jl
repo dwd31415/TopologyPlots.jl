@@ -85,7 +85,7 @@ end
 
 function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true, zero_section = false, color = "black")
     option_front, option_back = build_options(color)
-    push!(axis, plot_circle_element(option_back, 0, π, half_height))
+    push!(axis, plot_circle_element(option_front, 0, π, half_height))
     push!(axis, plot_circle_element(option_front,π,2π, half_height))
     push!(axis, plot_circle_element(option_back, 0, π, -half_height))
     push!(axis, plot_circle_element(option_front,π,2π, -half_height))
