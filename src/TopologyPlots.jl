@@ -4,7 +4,11 @@ module TopologyPlots
 #import PGFPlotsX.@pgf
 using PGFPlotsX
 
-export plot_cylinder
+export plot_cylinder, plot_cylinder_bb
+
+option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => "black")
+option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => "black")
+option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
 
 function plot_cylinder(half_height, axis :: Axis)
     p1 = range(-half_height,half_height,length=2)'
@@ -32,7 +36,7 @@ function plot_cylinder(half_height, axis :: Axis)
 end
 
 function plot_circle_element(options :: PGFPlotsX.Options, angle_start, angle_end, z)
-    p2 = angle_start:1e-2:angle_end+1e-2
+    p2 = angle_start:1e-2:angle_end
     angles = @. 0.0 * z + 1.0 * p2
     x = vec(@. cos(angles))
     y = vec(@. sin(angles))
@@ -40,11 +44,39 @@ function plot_circle_element(options :: PGFPlotsX.Options, angle_start, angle_en
     return @pgf Plot3(options, Table(x,y,z))
 end
 
-function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true)
-    option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => "black")
-    option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => "black")
-    option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
+function plot_curve_segmentized(axis::Axis, options :: PGFPlotsX.Options, xs, ys, zs, indices)
+    segments = [[]]
+    for idx = eachindex(indices)
+        if idx > 1
+            push!(segments[end], indices[idx-1])
+            if abs(indices[idx] - indices[idx-1]) ≥ 2
+                push!(segments, [])
+            end
+        end
+    end
+    push!(segments[end], indices[end])
+    for segement ∈ segments
+        push!(axis, @pgf Plot3(options, Table(xs[segement], ys[segement], zs[segement])))
+    end
+end
 
+function plot_curve_bb(xs,ys,zs, axis :: Axis)
+    front_indices = findall(<=(0), ys)
+    back_indices = findall(>(0), ys)
+
+    xs_front = xs[front_indices]
+    ys_front = ys[front_indices]
+    zs_front = zs[front_indices]
+
+    xs_back = xs[back_indices]
+    ys_back = ys[back_indices]
+    zs_back = zs[back_indices]
+
+    plot_curve_segmentized(axis, option_front, xs, ys, zs, front_indices)
+    plot_curve_segmentized(axis, option_back, xs, ys, zs, back_indices)
+end
+
+function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true, zero_section = false)
     push!(axis, plot_circle_element(option_back, 0, π, half_height))
     push!(axis, plot_circle_element(option_front,π,2π, half_height))
     push!(axis, plot_circle_element(option_back, 0, π, -half_height))
@@ -56,8 +88,10 @@ function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true)
         vertical_frame_left = @pgf Plot3(option_front, Table([1,1], [0,0], [half_height,-half_height]))
         push!(axis, vertical_frame_left)
     end
-
-    push!(axis, plot_circle_element(option_zerosection,0,2π, 0))
+    
+    if zero_section
+        push!(axis, plot_circle_element(option_zerosection,0,2π, 0))
+    end 
 end
 
 end # module TopologyPlots
