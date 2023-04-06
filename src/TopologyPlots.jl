@@ -4,7 +4,7 @@ module TopologyPlots
 #import PGFPlotsX.@pgf
 using PGFPlotsX
 
-export plot_cylinder, plot_cylinder_bb
+export plot_cylinder, plot_cylinder_bb, plot_curve_bb
 
 option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
 function build_options(color)
@@ -57,7 +57,9 @@ function plot_curve_segmentized(axis::Axis, options :: PGFPlotsX.Options, xs, ys
             end
         end
     end
-    push!(segments[end], indices[end])
+    if length(indices) > 0
+        push!(segments[end], indices[end])
+    end
     for segement ∈ segments
         push!(axis, @pgf Plot3(options, Table(xs[segement], ys[segement], zs[segement])))
     end
