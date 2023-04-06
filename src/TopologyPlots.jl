@@ -6,9 +6,12 @@ using PGFPlotsX
 
 export plot_cylinder, plot_cylinder_bb
 
-option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => "black")
-option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => "black")
 option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
+function build_options(color)
+    option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => color)
+    option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => color)
+    (option_front, option_back)
+end
 
 function plot_cylinder(half_height, axis :: Axis)
     p1 = range(-half_height,half_height,length=2)'
@@ -60,7 +63,9 @@ function plot_curve_segmentized(axis::Axis, options :: PGFPlotsX.Options, xs, ys
     end
 end
 
-function plot_curve_bb(xs,ys,zs, axis :: Axis)
+function plot_curve_bb(xs,ys,zs, axis :: Axis; color = "black")
+    option_front, option_back = build_options(color)
+
     front_indices = findall(<=(0), ys)
     back_indices = findall(>(0), ys)
 
@@ -76,7 +81,8 @@ function plot_curve_bb(xs,ys,zs, axis :: Axis)
     plot_curve_segmentized(axis, option_back, xs, ys, zs, back_indices)
 end
 
-function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true, zero_section = false)
+function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true, zero_section = false, color = "black")
+    option_front, option_back = build_options(color)
     push!(axis, plot_circle_element(option_back, 0, π, half_height))
     push!(axis, plot_circle_element(option_front,π,2π, half_height))
     push!(axis, plot_circle_element(option_back, 0, π, -half_height))

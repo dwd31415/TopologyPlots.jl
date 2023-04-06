@@ -14,5 +14,5 @@ xs = cos.(π * ts)
 ys = sin.(π * ts)
 zs = ts
 
-TopologyPlots.plot_curve_bb(xs,ys,zs,axis)
+TopologyPlots.plot_curve_bb(xs,ys,zs,axis; color="red")
 pgfsave("minimal_example.pdf", axis)
