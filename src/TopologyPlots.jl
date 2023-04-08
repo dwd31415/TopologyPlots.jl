@@ -8,7 +8,7 @@ export plot_cylinder, plot_cylinder_bb, plot_curve_bb
 
 option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
 function build_options(color)
-    option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => color)
+    option_back = PGFPlotsX.Options(:no_marks => nothing, :dashed => nothing, :thick => nothing, :color => color, :on_layer => "axis background")
     option_front = PGFPlotsX.Options(:no_marks => nothing, :thick => nothing, :color => color)
     (option_front, option_back)
 end
@@ -70,14 +70,6 @@ function plot_curve_bb(xs,ys,zs, axis :: Axis; color = "black")
 
     front_indices = findall(<=(0), ys)
     back_indices = findall(>(0), ys)
-
-    xs_front = xs[front_indices]
-    ys_front = ys[front_indices]
-    zs_front = zs[front_indices]
-
-    xs_back = xs[back_indices]
-    ys_back = ys[back_indices]
-    zs_back = zs[back_indices]
 
     plot_curve_segmentized(axis, option_front, xs, ys, zs, front_indices)
     plot_curve_segmentized(axis, option_back, xs, ys, zs, back_indices)
