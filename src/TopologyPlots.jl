@@ -4,7 +4,7 @@ module TopologyPlots
 #import PGFPlotsX.@pgf
 using PGFPlotsX
 
-export plot_cylinder, plot_cylinder_bb, plot_curve_bb
+export plot_cylinder, plot_cylinder_bb, plot_curve_bb, plot_curve_cut_cylinder
 
 option_zerosection = PGFPlotsX.Options(:no_marks => nothing, :dotted => nothing, :thick => nothing, :color => "blue")
 function build_options(color)
@@ -40,6 +40,24 @@ function plot_curve_segmentized(axis::Axis, options :: PGFPlotsX.Options, xs, ys
     end
 end
 
+function plot_curve_segmentized_2d(axis::Axis, options :: PGFPlotsX.Options, xs, ys, indices)
+    segments = [[]]
+    for idx = eachindex(indices)
+        if idx > 1
+            push!(segments[end], indices[idx-1])
+            if abs(indices[idx] - indices[idx-1]) ≥ 2
+                push!(segments, [])
+            end
+        end
+    end
+    if length(indices) > 0
+        push!(segments[end], indices[end])
+    end
+    for segement ∈ segments
+        push!(axis, @pgf Plot(options, Table(xs[segement], ys[segement])))
+    end
+end
+
 function plot_curve_bb(xs,ys,zs, axis :: Axis; color = "black")
     option_front, option_back = build_options(color)
 
@@ -67,6 +85,26 @@ function plot_cylinder_bb(half_height, axis :: Axis, vertical_frame = true, zero
     if zero_section
         push!(axis, plot_circle_element(option_zerosection,0,2π, 0))
     end 
+end
+
+function plot_curve_cut_cylinder(angles,zs, axis :: Axis; color = "black")
+    options = PGFPlotsX.Options(:no_marks => nothing, :color => color)
+    segments = [[]]
+    for idx = eachindex(angles)
+        if idx > 1
+            push!(segments[end], idx-1)
+            if abs(mod(π + angles[idx-1], 2π) - π - (mod(π + angles[idx], 2π) - π)) > 1e-1 &&
+                (sign(mod(π + angles[idx-1], 2π) - π != sign(mod(π + angles[idx], 2π) - π)))
+                push!(segments, [])
+            end
+        end
+    end
+    if length(angles) > 0
+        push!(segments[end], length(angles))
+    end
+    for segement ∈ segments
+        push!(axis, @pgf Plot(options, Table(mod.(π .+ angles[segement], 2π) .- π, zs[segement])))
+    end
 end
 
 end # module TopologyPlots
